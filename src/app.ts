@@ -1,4 +1,5 @@
 import express from 'express';
+import config from './config';
 import logger from './utilities/logger';
 
 export default (): Promise<express.Application> =>
@@ -12,7 +13,7 @@ export default (): Promise<express.Application> =>
 
       // test api route
       app.get(
-        '/api/v1',
+        config.API_URL,
         async (
           req: express.Request,
           res: express.Response
