@@ -7,9 +7,13 @@ import CryptoHelper from '../utilities/crypto-helper';
 import JwtHelper from '../utilities/jwt-helper';
 import logger from '../utilities/logger';
 
+interface ReturnType {
+  user: UserDocument;
+  token: string;
+}
 export interface AccountService {
-  signUp(model: SignUpModel): Promise<string>;
-  signIn(model: SignInModel): Promise<string>;
+  signUp(model: SignUpModel): Promise<ReturnType>;
+  signIn(model: SignInModel): Promise<ReturnType>;
 }
 
 @injectable()
@@ -20,12 +24,14 @@ export class AccountServiceImpl implements AccountService {
     this.userRepository = userRepository;
   }
 
-  async signUp(model: SignUpModel): Promise<string> {
+  async signUp(model: SignUpModel): Promise<ReturnType> {
     try {
       const user = await this.userRepository.createOne(model);
 
       // sign JWT token
-      return await JwtHelper.sign(user);
+      const token = await JwtHelper.sign(user);
+
+      return { user, token };
     } catch (error: any) {
       if (error.code === 11000) {
         error.message = `A user with the given username or email exists`;
@@ -37,7 +43,7 @@ export class AccountServiceImpl implements AccountService {
     }
   }
 
-  async signIn(model: SignInModel): Promise<string> {
+  async signIn(model: SignInModel): Promise<ReturnType> {
     try {
       // find user by email address
       const user = await this.userRepository.findOneByEmail(model.email, false);
@@ -45,10 +51,12 @@ export class AccountServiceImpl implements AccountService {
         throw new Error('Invalid credentials');
       }
 
+      const { password: hashedPassword, ...rest } = user.toObject();
+
       // check if passwords match
       const doPasswordsMatch = await CryptoHelper.comparePassword(
         model.password,
-        user.password
+        hashedPassword
       );
 
       if (!doPasswordsMatch) {
@@ -56,7 +64,9 @@ export class AccountServiceImpl implements AccountService {
       }
 
       // sign JWT token
-      return await JwtHelper.sign(user);
+      const token = await JwtHelper.sign(user);
+
+      return { user: rest as UserDocument, token };
     } catch (error) {
       logger.error(
         `[AccountService: signIn]: Unabled to sign in user: ${error}`

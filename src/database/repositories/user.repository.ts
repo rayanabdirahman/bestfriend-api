@@ -23,7 +23,11 @@ export interface UserRepository {
 export class UserRepositoryImpl implements UserRepository {
   async createOne(model: SignUpModel): Promise<UserDocument> {
     const user = new User(model);
-    return await user.save();
+    // remove password before returning user document
+    return await user.save().then((document) => {
+      const { password: _password, ...user } = document.toObject();
+      return user as UserDocument;
+    });
   }
 
   async findOneById(

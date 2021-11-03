@@ -38,10 +38,9 @@ export default class AccountController implements RegistrableController {
         return ApiResponse.error(res, message);
       }
 
-      // generate JWT token
-      const token = await this.accountService.signUp(model);
+      const user = await this.accountService.signUp(model);
 
-      return ApiResponse.success(res, token);
+      return ApiResponse.success(res, user);
     } catch (error: any) {
       const { message } = error;
       logger.error(
@@ -67,10 +66,9 @@ export default class AccountController implements RegistrableController {
         return ApiResponse.error(res, message);
       }
 
-      // generate JWT token
-      const token = await this.accountService.signIn(model);
+      const user = await this.accountService.signIn(model);
 
-      return ApiResponse.success(res, token);
+      return ApiResponse.success(res, user);
     } catch (error: any) {
       const { message } = error;
       logger.error(
