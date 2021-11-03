@@ -15,7 +15,8 @@ const JwtHelper: IJwtHelper = {
       user: {
         _id: user._id as unknown as string,
         username: user.username,
-        email: user.email
+        email: user.email,
+        isAdmin: user.isAdmin
       }
     };
 
