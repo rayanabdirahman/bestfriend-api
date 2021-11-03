@@ -1,12 +1,14 @@
 import { injectable, inject } from 'inversify';
 import { UserDocument } from '../database/models/user.model';
 import { UserRepository } from '../database/repositories/user.repository';
-import { SignUpModel } from '../domain/interfaces/account';
+import { SignInModel, SignUpModel } from '../domain/interfaces/account';
 import TYPES from '../types';
+import CryptoHelper from '../utilities/crypto-helper';
 import logger from '../utilities/logger';
 
 export interface AccountService {
   signUp(model: SignUpModel): Promise<UserDocument>;
+  signIn(model: SignInModel): Promise<UserDocument>;
 }
 
 @injectable()
@@ -29,6 +31,34 @@ export class AccountServiceImpl implements AccountService {
       }
       logger.error(
         `[AccountService: signUp]: Unabled to create a new user: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  async signIn(model: SignInModel): Promise<UserDocument> {
+    try {
+      // find user by email address
+      const user = await this.userRepository.findOneByEmail(model.email, false);
+      if (!user) {
+        throw new Error('Invalid credentials');
+      }
+
+      // check if passwords match
+      const doPasswordsMatch = await CryptoHelper.comparePassword(
+        model.password,
+        user.password
+      );
+
+      if (!doPasswordsMatch) {
+        throw new Error('Invalid credentials');
+      }
+
+      // sign JWT token
+      return user;
+    } catch (error) {
+      logger.error(
+        `[AccountService: signIn]: Unabled to sign in user: ${error}`
       );
       throw error;
     }

@@ -1,7 +1,7 @@
 import express from 'express';
 import { inject, injectable } from 'inversify';
 import config from '../../config';
-import { SignUpModel } from '../../domain/interfaces/account';
+import { SignInModel, SignUpModel } from '../../domain/interfaces/account';
 import { AccountService } from '../../services/account.service';
 import TYPES from '../../types';
 import ApiResponse from '../../utilities/api-response';
@@ -19,6 +19,7 @@ export default class AccountController implements RegistrableController {
 
   registerRoutes(app: express.Application): void {
     app.post(`${config.API_URL}/account/signup`, this.signUp);
+    app.post(`${config.API_URL}/account/signin`, this.signIn);
   }
 
   signUp = async (
@@ -45,6 +46,35 @@ export default class AccountController implements RegistrableController {
       const { message } = error;
       logger.error(
         `[AccountController: signup] - Unable to sign up user: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  signIn = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const model: SignInModel = {
+        ...req.body
+      };
+
+      // validate request body
+      const validity = AccountValidator.signIn(model);
+      if (validity.error) {
+        const { message } = validity.error;
+        return ApiResponse.error(res, message);
+      }
+
+      // generate JWT token
+      const token = await this.accountService.signIn(model);
+
+      return ApiResponse.success(res, token);
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[AccountController: signIn] - Unable to sign in user: ${message}`
       );
       return ApiResponse.error(res, message);
     }
