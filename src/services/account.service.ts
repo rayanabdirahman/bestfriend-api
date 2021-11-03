@@ -4,11 +4,12 @@ import { UserRepository } from '../database/repositories/user.repository';
 import { SignInModel, SignUpModel } from '../domain/interfaces/account';
 import TYPES from '../types';
 import CryptoHelper from '../utilities/crypto-helper';
+import JwtHelper from '../utilities/jwt-helper';
 import logger from '../utilities/logger';
 
 export interface AccountService {
-  signUp(model: SignUpModel): Promise<UserDocument>;
-  signIn(model: SignInModel): Promise<UserDocument>;
+  signUp(model: SignUpModel): Promise<string>;
+  signIn(model: SignInModel): Promise<string>;
 }
 
 @injectable()
@@ -19,12 +20,12 @@ export class AccountServiceImpl implements AccountService {
     this.userRepository = userRepository;
   }
 
-  async signUp(model: SignUpModel): Promise<UserDocument> {
+  async signUp(model: SignUpModel): Promise<string> {
     try {
       const user = await this.userRepository.createOne(model);
 
       // sign JWT token
-      return user;
+      return await JwtHelper.sign(user);
     } catch (error: any) {
       if (error.code === 11000) {
         error.message = `A user with the given username or email exists`;
@@ -36,7 +37,7 @@ export class AccountServiceImpl implements AccountService {
     }
   }
 
-  async signIn(model: SignInModel): Promise<UserDocument> {
+  async signIn(model: SignInModel): Promise<string> {
     try {
       // find user by email address
       const user = await this.userRepository.findOneByEmail(model.email, false);
@@ -55,7 +56,7 @@ export class AccountServiceImpl implements AccountService {
       }
 
       // sign JWT token
-      return user;
+      return await JwtHelper.sign(user);
     } catch (error) {
       logger.error(
         `[AccountService: signIn]: Unabled to sign in user: ${error}`
