@@ -14,6 +14,12 @@ import {
   AnalyticsService,
   AnalyticsServiceImpl
 } from './services/analytics.service';
+import ProductController from './api/product/product.controller';
+import { ProductService, ProductServiceImpl } from './services/product.service';
+import {
+  ProductRepository,
+  ProductRepositoryImpl
+} from './database/repositories/product.repository';
 
 const container = new Container();
 
@@ -21,14 +27,19 @@ const container = new Container();
 container.bind<RegistrableController>(TYPES.Controller).to(UserController);
 container.bind<RegistrableController>(TYPES.Controller).to(AccountController);
 container.bind<RegistrableController>(TYPES.Controller).to(AnalyticsController);
+container.bind<RegistrableController>(TYPES.Controller).to(ProductController);
 
 // services
 container.bind<AccountService>(TYPES.AccountService).to(AccountServiceImpl);
 container
   .bind<AnalyticsService>(TYPES.AnalyticsService)
   .to(AnalyticsServiceImpl);
+container.bind<ProductService>(TYPES.ProductService).to(ProductServiceImpl);
 
 // repository
 container.bind<UserRepository>(TYPES.UserRepository).to(UserRepositoryImpl);
+container
+  .bind<ProductRepository>(TYPES.ProductRepository)
+  .to(ProductRepositoryImpl);
 
 export default container;
