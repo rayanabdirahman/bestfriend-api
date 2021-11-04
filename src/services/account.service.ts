@@ -14,6 +14,7 @@ interface ReturnType {
 export interface AccountService {
   signUp(model: SignUpModel): Promise<ReturnType>;
   signIn(model: SignInModel): Promise<ReturnType>;
+  updateOneById(id: string, model: SignUpModel): Promise<UserDocument>;
 }
 
 @injectable()
@@ -70,6 +71,22 @@ export class AccountServiceImpl implements AccountService {
     } catch (error) {
       logger.error(
         `[AccountService: signIn]: Unabled to sign in user: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  async updateOneById(id: string, model: SignUpModel): Promise<UserDocument> {
+    try {
+      const user = await this.userRepository.findOneByIdAndUpdate(id, model);
+      if (!user) {
+        throw new Error('Cannot update this user');
+      }
+
+      return user;
+    } catch (error: any) {
+      logger.error(
+        `[AccountService: updateOneById]: Unabled to updte user: ${error}`
       );
       throw error;
     }

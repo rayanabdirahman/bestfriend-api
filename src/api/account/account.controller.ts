@@ -2,6 +2,8 @@ import express from 'express';
 import { inject, injectable } from 'inversify';
 import config from '../../config';
 import { SignInModel, SignUpModel } from '../../domain/interfaces/account';
+import AuthorisationGuard from '../../middlewares/AuthorisationGuard';
+import AuthenticationGuard from '../../middlewares/AuthenticationGuard';
 import { AccountService } from '../../services/account.service';
 import TYPES from '../../types';
 import ApiResponse from '../../utilities/api-response';
@@ -20,6 +22,12 @@ export default class AccountController implements RegistrableController {
   registerRoutes(app: express.Application): void {
     app.post(`${config.API_URL}/account/signup`, this.signUp);
     app.post(`${config.API_URL}/account/signin`, this.signIn);
+    app.put(
+      `${config.API_URL}/account/update/:_id`,
+      AuthenticationGuard,
+      AuthorisationGuard,
+      this.updateOne
+    );
   }
 
   signUp = async (
@@ -73,6 +81,36 @@ export default class AccountController implements RegistrableController {
       const { message } = error;
       logger.error(
         `[AccountController: signIn] - Unable to sign in user: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  updateOne = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const { _id } = req.params;
+      const model: SignUpModel = {
+        ...req.body
+      };
+
+      // validate request body
+      const validity = AccountValidator.updateOne(model);
+      if (validity.error) {
+        const { message } = validity.error;
+        console.log('validation: ', message);
+        return ApiResponse.error(res, message);
+      }
+
+      const user = await this.accountService.updateOneById(_id, model);
+
+      return ApiResponse.success(res, user);
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[AccountController: updateOneById] - Unable to update user: ${message}`
       );
       return ApiResponse.error(res, message);
     }

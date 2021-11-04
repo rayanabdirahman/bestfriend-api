@@ -4,12 +4,16 @@ import logger from '../utilities/logger';
 import JwtHelper from '../utilities/jwt-helper';
 import { JwtPayload } from '../domain/interfaces/user';
 
-const AuthGuard = async (req: Request, res: Response, next: NextFunction) => {
+const AuthenticationGuard = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // check if Authorization header has been defined
     const { authorization } = req.headers;
     if (!authorization) {
-      throw new Error('Authorisation denied. Please sign in');
+      throw new Error('Authentication denied. Please sign in');
     }
 
     // extract jwt from Authorization header by removing Bearer text (format: Bearer token)
@@ -26,9 +30,11 @@ const AuthGuard = async (req: Request, res: Response, next: NextFunction) => {
     next();
   } catch (error: any) {
     const message = error.message ? error.message : error;
-    logger.error(`[AuthGuard] - Unable to authorise user: ${message}`);
+    logger.error(
+      `[AuthenticationGuard] - Unable to authorise user: ${message}`
+    );
     return ApiResponse.error(res, message);
   }
 };
 
-export default AuthGuard;
+export default AuthenticationGuard;

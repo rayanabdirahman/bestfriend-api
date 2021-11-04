@@ -11,9 +11,7 @@ export interface UserRepository {
   ): Promise<UserDocument | null>;
   findOneByIdAndUpdate(
     _id: string,
-    key: string,
-    value: string,
-    option?: string
+    model: SignUpModel
   ): Promise<UserDocument | null>;
   findAll(): Promise<UserDocument[]>;
   deleteOne(_id: string): Promise<UserDocument | null>;
@@ -52,23 +50,11 @@ export class UserRepositoryImpl implements UserRepository {
 
   async findOneByIdAndUpdate(
     _id: string,
-    key: string,
-    value: string,
-    option?: string
+    model: SignUpModel
   ): Promise<UserDocument | null> {
-    // give function flexibility to add or remove values from arrays
-    // check if array key is being updated
-    if (option)
-      return await User.findByIdAndUpdate(
-        _id,
-        { [option]: { [key]: value } },
-        {
-          new: true
-        }
-      ).select('-password');
     return await User.findByIdAndUpdate(
       _id,
-      { key: value },
+      { $set: model },
       {
         new: true
       }
