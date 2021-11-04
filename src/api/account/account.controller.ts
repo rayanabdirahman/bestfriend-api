@@ -28,6 +28,12 @@ export default class AccountController implements RegistrableController {
       AuthorisationGuard,
       this.updateOne
     );
+    app.delete(
+      `${config.API_URL}/account/delete/:_id`,
+      AuthenticationGuard,
+      AuthorisationGuard,
+      this.deleteOne
+    );
   }
 
   signUp = async (
@@ -110,7 +116,26 @@ export default class AccountController implements RegistrableController {
     } catch (error: any) {
       const { message } = error;
       logger.error(
-        `[AccountController: updateOneById] - Unable to update user: ${message}`
+        `[AccountController: updateOne] - Unable to update user: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  deleteOne = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const { _id } = req.params;
+
+      await this.accountService.deleteOneById(_id);
+
+      return ApiResponse.success(res, 'Account successfully deleted');
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[AccountController: deleteOne] - Unable to delete user: ${message}`
       );
       return ApiResponse.error(res, message);
     }

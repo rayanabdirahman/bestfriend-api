@@ -15,6 +15,7 @@ export interface AccountService {
   signUp(model: SignUpModel): Promise<ReturnType>;
   signIn(model: SignInModel): Promise<ReturnType>;
   updateOneById(id: string, model: SignUpModel): Promise<UserDocument>;
+  deleteOneById(id: string): Promise<UserDocument>;
 }
 
 @injectable()
@@ -86,7 +87,23 @@ export class AccountServiceImpl implements AccountService {
       return user;
     } catch (error: any) {
       logger.error(
-        `[AccountService: updateOneById]: Unabled to updte user: ${error}`
+        `[AccountService: updateOneById]: Unabled to update user: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  async deleteOneById(id: string): Promise<UserDocument> {
+    try {
+      const user = await this.userRepository.deleteOne(id);
+      if (!user) {
+        throw new Error('Cannot delete this user');
+      }
+
+      return user;
+    } catch (error: any) {
+      logger.error(
+        `[AccountService: deleteOneById]: Unabled to delete user: ${error}`
       );
       throw error;
     }

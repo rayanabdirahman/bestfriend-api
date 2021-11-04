@@ -66,6 +66,6 @@ export class UserRepositoryImpl implements UserRepository {
   }
 
   async deleteOne(_id: string): Promise<UserDocument | null> {
-    return await User.findByIdAndRemove(_id);
+    return await User.findByIdAndDelete(_id);
   }
 }
