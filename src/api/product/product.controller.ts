@@ -32,6 +32,18 @@ export default class ProductController implements RegistrableController {
       AdminGuard,
       this.updateOne
     );
+    app.get(
+      `${config.API_URL}/product/:_id`,
+      AuthenticationGuard,
+      AdminGuard,
+      this.findOne
+    );
+    app.delete(
+      `${config.API_URL}/product/:_id`,
+      AuthenticationGuard,
+      AdminGuard,
+      this.deleteOne
+    );
   }
 
   createOne = async (
@@ -85,6 +97,44 @@ export default class ProductController implements RegistrableController {
       const message = error.message || error;
       logger.error(
         `[ProductController: updateOne] - Unable to update product: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  findOne = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const { _id } = req.params;
+
+      const product = await this.productService.findOneById(_id);
+
+      return ApiResponse.success(res, product);
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[ProductController: findOne] - Unable to find product: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  deleteOne = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const { _id } = req.params;
+
+      await this.productService.deleteOneById(_id);
+
+      return ApiResponse.success(res, 'Product successfully deleted');
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[ProductController: deleteOne] - Unable to delete product: ${message}`
       );
       return ApiResponse.error(res, message);
     }

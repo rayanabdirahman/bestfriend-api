@@ -11,6 +11,8 @@ export interface ProductService {
     id: string,
     model: CreateProductModel
   ): Promise<ProductDocument>;
+  findOneById(id: string): Promise<ProductDocument>;
+  deleteOneById(id: string): Promise<ProductDocument>;
 }
 
 @injectable()
@@ -51,6 +53,38 @@ export class ProductServiceImpl implements ProductService {
     } catch (error: any) {
       logger.error(
         `[ProductServiceImpl: updateOneById]: Unabled to update product: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  async findOneById(id: string): Promise<ProductDocument> {
+    try {
+      const product = await this.productRepository.findOneById(id);
+      if (!product) {
+        throw new Error('Cannot find this product');
+      }
+
+      return product;
+    } catch (error: any) {
+      logger.error(
+        `[ProductServiceImpl: findOneById]: Unabled to find product: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  async deleteOneById(id: string): Promise<ProductDocument> {
+    try {
+      const product = await this.productRepository.deleteOne(id);
+      if (!product) {
+        throw new Error('Cannot delete this product');
+      }
+
+      return product;
+    } catch (error: any) {
+      logger.error(
+        `[ProductServiceImpl: deleteOneById]: Unabled to delete product: ${error}`
       );
       throw error;
     }

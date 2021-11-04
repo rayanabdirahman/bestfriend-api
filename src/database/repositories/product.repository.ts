@@ -8,6 +8,8 @@ export interface ProductRepository {
     _id: string,
     model: CreateProductModel
   ): Promise<ProductDocument | null>;
+  findOneById(_id: string): Promise<ProductDocument | null>;
+  deleteOne(_id: string): Promise<ProductDocument | null>;
 }
 
 @injectable()
@@ -28,5 +30,13 @@ export class ProductRepositoryImpl implements ProductRepository {
         new: true
       }
     );
+  }
+
+  async findOneById(_id: string): Promise<ProductDocument | null> {
+    return await Product.findOne({ _id });
+  }
+
+  async deleteOne(_id: string): Promise<ProductDocument | null> {
+    return await Product.findByIdAndDelete(_id);
   }
 }
