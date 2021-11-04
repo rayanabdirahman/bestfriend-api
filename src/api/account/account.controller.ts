@@ -24,7 +24,7 @@ export default class AccountController implements RegistrableController {
     app.post(`${config.API_URL}/account/signup`, this.signUp);
     app.post(`${config.API_URL}/account/signin`, this.signIn);
     app.get(
-      `${config.API_URL}/account/`,
+      `${config.API_URL}/account`,
       AuthenticationGuard,
       AdminGuard,
       this.findAll

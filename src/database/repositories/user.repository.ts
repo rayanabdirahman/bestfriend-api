@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
 import { SignUpModel } from '../../domain/interfaces/account';
+import { MonthlyActiveUsers } from '../../domain/interfaces/analytics';
 import User, { UserDocument } from '../models/user.model';
 
 export interface UserRepository {
@@ -15,6 +16,7 @@ export interface UserRepository {
   ): Promise<UserDocument | null>;
   findAll(): Promise<UserDocument[]>;
   deleteOne(_id: string): Promise<UserDocument | null>;
+  aggregate(): Promise<MonthlyActiveUsers[]>;
 }
 
 @injectable()
@@ -67,5 +69,25 @@ export class UserRepositoryImpl implements UserRepository {
 
   async deleteOne(_id: string): Promise<UserDocument | null> {
     return await User.findByIdAndDelete(_id);
+  }
+
+  async aggregate(): Promise<MonthlyActiveUsers[]> {
+    // Find a years worth of account analytics
+    const todaysDate = new Date();
+    const lastYear = new Date(
+      todaysDate.setFullYear(todaysDate.getFullYear() - 1)
+    );
+
+    return await User.aggregate([
+      { $match: { createdAt: { $gte: lastYear } } },
+      {
+        $project: {
+          month: { $month: '$createdAt' }
+        }
+      },
+      {
+        $group: { _id: '$month', total: { $sum: 1 } }
+      }
+    ]);
   }
 }
