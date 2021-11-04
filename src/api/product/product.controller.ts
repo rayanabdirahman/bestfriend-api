@@ -26,6 +26,12 @@ export default class ProductController implements RegistrableController {
       AdminGuard,
       this.createOne
     );
+    app.put(
+      `${config.API_URL}/product/:_id`,
+      AuthenticationGuard,
+      AdminGuard,
+      this.updateOne
+    );
   }
 
   createOne = async (
@@ -38,7 +44,7 @@ export default class ProductController implements RegistrableController {
       };
 
       // validate request body
-      const validity = ProductValidator.signUp(model);
+      const validity = ProductValidator.createOne(model);
       if (validity.error) {
         const { message } = validity.error;
         return ApiResponse.error(res, message);
@@ -51,6 +57,34 @@ export default class ProductController implements RegistrableController {
       const { message } = error;
       logger.error(
         `[ProductController: createOne] - Unable to create new product: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  updateOne = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const { _id } = req.params;
+      const model: CreateProductModel = {
+        ...req.body
+      };
+
+      // validate request body
+      const validity = ProductValidator.updateOne(model);
+      if (validity.error) {
+        const { message } = validity.error;
+        return ApiResponse.error(res, message);
+      }
+
+      const product = await this.productService.updateOneById(_id, model);
+      return ApiResponse.success(res, product);
+    } catch (error: any) {
+      const message = error.message || error;
+      logger.error(
+        `[ProductController: updateOne] - Unable to update product: ${message}`
       );
       return ApiResponse.error(res, message);
     }
