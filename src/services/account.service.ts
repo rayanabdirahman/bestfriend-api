@@ -14,6 +14,7 @@ interface ReturnType {
 export interface AccountService {
   signUp(model: SignUpModel): Promise<ReturnType>;
   signIn(model: SignInModel): Promise<ReturnType>;
+  findAll(): Promise<UserDocument[]>;
   findOneById(id: string): Promise<UserDocument>;
   updateOneById(id: string, model: SignUpModel): Promise<UserDocument>;
   deleteOneById(id: string): Promise<UserDocument>;
@@ -78,6 +79,22 @@ export class AccountServiceImpl implements AccountService {
     }
   }
 
+  async findAll(): Promise<UserDocument[]> {
+    try {
+      const users = await this.userRepository.findAll();
+      if (!users) {
+        throw new Error('Cannot find all users');
+      }
+
+      return users;
+    } catch (error: any) {
+      logger.error(
+        `[AccountService: findAll]: Unabled to find all users: ${error}`
+      );
+      throw error;
+    }
+  }
+
   async findOneById(id: string): Promise<UserDocument> {
     try {
       const user = await this.userRepository.findOneById(id);
@@ -88,7 +105,7 @@ export class AccountServiceImpl implements AccountService {
       return user;
     } catch (error: any) {
       logger.error(
-        `[AccountService: deleteOneById]: Unabled to find user: ${error}`
+        `[AccountService: findOneById]: Unabled to find user: ${error}`
       );
       throw error;
     }

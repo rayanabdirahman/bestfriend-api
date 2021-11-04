@@ -24,6 +24,12 @@ export default class AccountController implements RegistrableController {
     app.post(`${config.API_URL}/account/signup`, this.signUp);
     app.post(`${config.API_URL}/account/signin`, this.signIn);
     app.get(
+      `${config.API_URL}/account/`,
+      AuthenticationGuard,
+      AdminGuard,
+      this.findAll
+    );
+    app.get(
       `${config.API_URL}/account/:_id`,
       AuthenticationGuard,
       AdminGuard,
@@ -94,6 +100,23 @@ export default class AccountController implements RegistrableController {
       const { message } = error;
       logger.error(
         `[AccountController: signIn] - Unable to sign in user: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  findAll = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const users = await this.accountService.findAll();
+
+      return ApiResponse.success(res, users);
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[AccountController: findAll] - Unable to find all users: ${message}`
       );
       return ApiResponse.error(res, message);
     }
