@@ -6,7 +6,9 @@ const AdminGuard = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { user } = req;
     if (!user.isAdmin) {
-      throw new Error('You do not have the admin right to perform this action');
+      throw new Error(
+        'You do not have the admin rights to perform this action'
+      );
     }
     next();
   } catch (error: any) {

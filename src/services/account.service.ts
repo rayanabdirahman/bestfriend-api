@@ -14,6 +14,7 @@ interface ReturnType {
 export interface AccountService {
   signUp(model: SignUpModel): Promise<ReturnType>;
   signIn(model: SignInModel): Promise<ReturnType>;
+  findOneById(id: string): Promise<UserDocument>;
   updateOneById(id: string, model: SignUpModel): Promise<UserDocument>;
   deleteOneById(id: string): Promise<UserDocument>;
 }
@@ -72,6 +73,22 @@ export class AccountServiceImpl implements AccountService {
     } catch (error) {
       logger.error(
         `[AccountService: signIn]: Unabled to sign in user: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  async findOneById(id: string): Promise<UserDocument> {
+    try {
+      const user = await this.userRepository.findOneById(id);
+      if (!user) {
+        throw new Error('Cannot find this user');
+      }
+
+      return user;
+    } catch (error: any) {
+      logger.error(
+        `[AccountService: deleteOneById]: Unabled to find user: ${error}`
       );
       throw error;
     }

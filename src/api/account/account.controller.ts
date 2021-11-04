@@ -10,6 +10,7 @@ import ApiResponse from '../../utilities/api-response';
 import logger from '../../utilities/logger';
 import { RegistrableController } from '../registrable.controller';
 import AccountValidator from './account.validator';
+import AdminGuard from '../../middlewares/AdminGuard';
 
 @injectable()
 export default class AccountController implements RegistrableController {
@@ -22,6 +23,12 @@ export default class AccountController implements RegistrableController {
   registerRoutes(app: express.Application): void {
     app.post(`${config.API_URL}/account/signup`, this.signUp);
     app.post(`${config.API_URL}/account/signin`, this.signIn);
+    app.get(
+      `${config.API_URL}/account/:_id`,
+      AuthenticationGuard,
+      AdminGuard,
+      this.findOne
+    );
     app.put(
       `${config.API_URL}/account/update/:_id`,
       AuthenticationGuard,
@@ -87,6 +94,25 @@ export default class AccountController implements RegistrableController {
       const { message } = error;
       logger.error(
         `[AccountController: signIn] - Unable to sign in user: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  findOne = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const { _id } = req.params;
+
+      const user = await this.accountService.findOneById(_id);
+
+      return ApiResponse.success(res, user);
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[AccountController: findOne] - Unable to find user: ${message}`
       );
       return ApiResponse.error(res, message);
     }

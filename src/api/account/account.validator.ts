@@ -5,7 +5,8 @@ export default class AccountValidator {
   static signUpSchema: Joi.ObjectSchema = Joi.object({
     username: Joi.string().required(),
     email: Joi.string().email().required(),
-    password: Joi.string().min(8).max(15).required()
+    password: Joi.string().min(8).max(15).required(),
+    isAdmin: Joi.boolean()
   });
 
   static signInSchema: Joi.ObjectSchema = Joi.object({
@@ -16,7 +17,8 @@ export default class AccountValidator {
   static updateOneSchema: Joi.ObjectSchema = Joi.object({
     username: Joi.string(),
     email: Joi.string().email(),
-    password: Joi.string().min(8).max(15)
+    password: Joi.string().min(8).max(15),
+    isAdmin: Joi.boolean()
   });
 
   static signUp(model: SignUpModel): Joi.ValidationResult {
