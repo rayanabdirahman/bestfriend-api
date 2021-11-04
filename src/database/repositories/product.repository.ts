@@ -9,6 +9,7 @@ export interface ProductRepository {
     model: CreateProductModel
   ): Promise<ProductDocument | null>;
   findOneById(_id: string): Promise<ProductDocument | null>;
+  findAll(): Promise<ProductDocument[]>;
   deleteOne(_id: string): Promise<ProductDocument | null>;
 }
 
@@ -34,6 +35,10 @@ export class ProductRepositoryImpl implements ProductRepository {
 
   async findOneById(_id: string): Promise<ProductDocument | null> {
     return await Product.findOne({ _id });
+  }
+
+  async findAll(): Promise<ProductDocument[]> {
+    return await Product.find();
   }
 
   async deleteOne(_id: string): Promise<ProductDocument | null> {

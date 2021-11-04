@@ -35,9 +35,9 @@ export default class ProductController implements RegistrableController {
     app.get(
       `${config.API_URL}/product/:_id`,
       AuthenticationGuard,
-      AdminGuard,
       this.findOne
     );
+    app.get(`${config.API_URL}/product`, AuthenticationGuard, this.findAll);
     app.delete(
       `${config.API_URL}/product/:_id`,
       AuthenticationGuard,
@@ -116,6 +116,23 @@ export default class ProductController implements RegistrableController {
       const { message } = error;
       logger.error(
         `[ProductController: findOne] - Unable to find product: ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  findAll = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const products = await this.productService.findAll();
+
+      return ApiResponse.success(res, products);
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[ProductController: findAll] - Unable to find all products: ${message}`
       );
       return ApiResponse.error(res, message);
     }

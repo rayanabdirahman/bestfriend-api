@@ -12,6 +12,7 @@ export interface ProductService {
     model: CreateProductModel
   ): Promise<ProductDocument>;
   findOneById(id: string): Promise<ProductDocument>;
+  findAll(): Promise<ProductDocument[]>;
   deleteOneById(id: string): Promise<ProductDocument>;
 }
 
@@ -69,6 +70,22 @@ export class ProductServiceImpl implements ProductService {
     } catch (error: any) {
       logger.error(
         `[ProductServiceImpl: findOneById]: Unabled to find product: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  async findAll(): Promise<ProductDocument[]> {
+    try {
+      const products = await this.productRepository.findAll();
+      if (!products) {
+        throw new Error('Cannot find all products');
+      }
+
+      return products;
+    } catch (error: any) {
+      logger.error(
+        `[ProductServiceImpl: findAll]: Unabled to find all products: ${error}`
       );
       throw error;
     }
