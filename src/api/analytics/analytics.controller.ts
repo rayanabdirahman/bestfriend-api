@@ -26,6 +26,12 @@ export default class AnalyticsController implements RegistrableController {
       AdminGuard,
       this.monthlyActiveUsers
     );
+    app.get(
+      `${config.API_URL}/analytics/monthlyincome`,
+      AuthenticationGuard,
+      AdminGuard,
+      this.monthlyIncome
+    );
   }
 
   monthlyActiveUsers = async (
@@ -40,6 +46,23 @@ export default class AnalyticsController implements RegistrableController {
       const { message } = error;
       logger.error(
         `[AnalyticsController: monthlyActiveUsers] - Unable to find analytics for monthly active users (MAU): ${message}`
+      );
+      return ApiResponse.error(res, message);
+    }
+  };
+
+  monthlyIncome = async (
+    req: express.Request,
+    res: express.Response
+  ): Promise<express.Response> => {
+    try {
+      const users = await this.analyticsService.monthlyIncome();
+
+      return ApiResponse.success(res, users);
+    } catch (error: any) {
+      const { message } = error;
+      logger.error(
+        `[AnalyticsController: monthlyIncome] - Unable to find analytics for monthly income: ${message}`
       );
       return ApiResponse.error(res, message);
     }

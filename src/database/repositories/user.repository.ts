@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { SignUpModel } from '../../domain/interfaces/account';
-import { MonthlyActiveUsers } from '../../domain/interfaces/analytics';
+import { AnalyticsReturnType } from '../../domain/interfaces/analytics';
 import User, { UserDocument } from '../models/user.model';
 
 export interface UserRepository {
@@ -16,7 +16,7 @@ export interface UserRepository {
   ): Promise<UserDocument | null>;
   findAll(): Promise<UserDocument[]>;
   deleteOne(_id: string): Promise<UserDocument | null>;
-  aggregate(): Promise<MonthlyActiveUsers[]>;
+  aggregate(): Promise<AnalyticsReturnType[]>;
 }
 
 @injectable()
@@ -71,7 +71,7 @@ export class UserRepositoryImpl implements UserRepository {
     return await User.findByIdAndDelete(_id);
   }
 
-  async aggregate(): Promise<MonthlyActiveUsers[]> {
+  async aggregate(): Promise<AnalyticsReturnType[]> {
     // Find a years worth of account analytics
     const todaysDate = new Date();
     const lastYear = new Date(
