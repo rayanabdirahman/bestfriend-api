@@ -4,7 +4,9 @@ const TYPES = {
   UserRepository: Symbol('UserRepository'),
   AnalyticsService: Symbol('AnalyticsService'),
   ProductService: Symbol('ProductService'),
-  ProductRepository: Symbol('ProductRepository')
+  ProductRepository: Symbol('ProductRepository'),
+  OrderService: Symbol('OrderService'),
+  OrderRepository: Symbol('OrderRepository')
 };
 
 export default TYPES;

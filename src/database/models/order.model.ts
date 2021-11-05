@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import { OrderStatusEnum } from '../../domain/enums/orders';
+import { OrderProductModel } from '../../domain/interfaces/order';
 
 export interface OrderDocument extends mongoose.Document {
   _id: mongoose.Types.ObjectId;
   userId: string;
-  products: { id: string; quantity: number }[];
+  products: OrderProductModel[];
   amount: number;
   address: unknown;
   status: OrderStatusEnum;
@@ -14,7 +15,7 @@ const OrderSchema: mongoose.Schema = new mongoose.Schema(
   {
     userId: { type: String, required: true },
     products: [
-      { id: { type: String }, quantity: { type: Number, default: 1 } }
+      { _id: { type: String }, quantity: { type: Number, default: 1 } }
     ],
     amount: { type: Number, required: true },
     address: { type: Object, required: true },
