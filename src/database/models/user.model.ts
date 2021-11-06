@@ -3,16 +3,27 @@ import CryptoHelper from '../../utilities/crypto-helper';
 
 export interface UserDocument extends mongoose.Document {
   _id: mongoose.Types.ObjectId;
+  name: string;
   username: string;
   email: string;
+  avatar: string;
   password: string;
   isAdmin: boolean;
 }
 
 const UserSchema: mongoose.Schema = new mongoose.Schema(
   {
-    username: { type: String, required: true, trim: true, unique: true },
+    name: { type: String, required: true, trim: true },
+    username: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      min: 3,
+      max: 20
+    },
     email: { type: String, required: true, trim: true, unique: true },
+    avatar: { type: String },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false }
   },

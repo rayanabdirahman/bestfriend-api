@@ -3,8 +3,10 @@ import { SignInModel, SignUpModel } from '../../domain/interfaces/account';
 
 export default class AccountValidator {
   static signUpSchema: Joi.ObjectSchema = Joi.object({
+    name: Joi.string().required(),
     username: Joi.string().required(),
     email: Joi.string().email().required(),
+    avatar: Joi.string().required(),
     password: Joi.string().min(8).max(15).required(),
     isAdmin: Joi.boolean()
   });
@@ -15,8 +17,10 @@ export default class AccountValidator {
   });
 
   static updateOneSchema: Joi.ObjectSchema = Joi.object({
+    name: Joi.string(),
     username: Joi.string(),
     email: Joi.string().email(),
+    avatar: Joi.string(),
     password: Joi.string().min(8).max(15),
     isAdmin: Joi.boolean()
   });

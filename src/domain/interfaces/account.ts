@@ -1,6 +1,8 @@
 export interface SignUpModel {
+  name: string;
   username: string;
   email: string;
+  avatar: string;
   password: string;
   isAdmin?: boolean;
 }

@@ -11,6 +11,7 @@ import logger from '../../utilities/logger';
 import { RegistrableController } from '../registrable.controller';
 import AccountValidator from './account.validator';
 import AdminGuard from '../../middlewares/AdminGuard';
+import RandomColor from '../../utilities/random-color';
 
 @injectable()
 export default class AccountController implements RegistrableController {
@@ -55,7 +56,13 @@ export default class AccountController implements RegistrableController {
   ): Promise<express.Response> => {
     try {
       const model: SignUpModel = {
-        ...req.body
+        ...req.body,
+        // default user avatar
+        avatar:
+          req.body.name &&
+          `https://eu.ui-avatars.com/api/?name=${req.body.name.split(
+            ' '
+          )}&background=${RandomColor.generate()}&color=fff&bold=true`
       };
 
       // validate request body
