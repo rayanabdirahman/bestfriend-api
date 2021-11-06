@@ -1,4 +1,6 @@
 import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
 import { RegistrableController } from './api/registrable.controller';
 import config from './config';
 import container from './inversify.config';
@@ -13,6 +15,8 @@ export default (): Promise<express.Application> =>
       // set middleware
       app.use(express.json());
       app.use(express.urlencoded({ extended: true }));
+      app.use(cors());
+      app.use(helmet());
 
       // register api routes
       const controllers: RegistrableController[] =
